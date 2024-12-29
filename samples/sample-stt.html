@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STTService Test</title>
+</head>
+
+<body>
+  <button id="start">Start Listening</button>
+  <button id="stop">Stop Listening</button>
+  <div id="output"></div>
+
+  <script type="module">
+    import Config from '../src/Config.js';
+    import SessionManager from '../src/session/SessionManager.js';
+    import STTService from '../src/services/STTService.js';
+
+    // Set API base URL
+    Config.setApiBaseUrl('https://localhost:8080');
+
+    // Initialize session
+    SessionManager.initializeSession();
+
+    const sttService = new STTService();
+    const output = document.getElementById('output');
+
+    document.getElementById('start').addEventListener('click', () => {
+      console.log('Start button clicked'); // Add a debug log
+      sttService.startListening(transcript => {
+        console.log('Received transcript:', transcript); // Debug log
+
+        const output = document.getElementById('output');
+        if (!output) {
+          console.error('Output element not found in the DOM.');
+          return;
+        }
+
+        const paragraph = document.createElement('p');
+        paragraph.textContent = `Transcription: ${transcript}`;
+        output.appendChild(paragraph);
+      }).catch(error => console.error('Error starting microphone:', error));
+    });
+
+
+
+    document.getElementById('stop').addEventListener('click', () => {
+      sttService.stopListening();
+    });
+
+
+  </script>
+</body>
+
+</html>

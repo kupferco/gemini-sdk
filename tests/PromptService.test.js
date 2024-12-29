@@ -1,5 +1,12 @@
 import PromptService from '../src/services/PromptService';
 
+jest.mock('../src/Config', () => ({
+    getApiBaseUrl: jest.fn(() => 'https://mock-test-api-endpoint.com'),
+    getEndpoint: jest.fn((serviceName) => `https://mock-test-api-endpoint.com/api/gemini/${serviceName}`),
+}));
+
+
+
 describe('PromptService', () => {
     test('should fetch a prompt for a given session', async () => {
         const mockSessionId = 'test-session';
@@ -19,6 +26,7 @@ describe('PromptService', () => {
         expect(fetch).toHaveBeenCalledWith(
             'https://mock-test-api-endpoint.com/api/gemini/system-prompt?sessionId=test-session'
         );
+
         expect(prompt).toBe('Test Prompt');
     });
 
