@@ -2,7 +2,7 @@ import Config from '../Config';
 
 class PromptService {
   async getPrompt(sessionId) {
-    const endpoint = Config.getEndpoint('prompt');
+    const endpoint = Config.getEndpoint('system-prompt');
 
     if (!sessionId) {
       throw new Error('Session ID is required to fetch the prompt.');

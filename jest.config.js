@@ -4,4 +4,5 @@ module.exports = {
     },
     testEnvironment: 'node', // Set the test environment
     collectCoverage: true, // Enable coverage collection
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };

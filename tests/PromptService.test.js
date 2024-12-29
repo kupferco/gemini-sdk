@@ -2,8 +2,14 @@ import PromptService from '../src/services/PromptService';
 
 jest.mock('../src/Config', () => ({
     getApiBaseUrl: jest.fn(() => 'https://mock-test-api-endpoint.com'),
-    getEndpoint: jest.fn((serviceName) => `https://mock-test-api-endpoint.com/api/gemini/${serviceName}`),
+    getEndpoint: jest.fn((serviceName) => {
+        const endpoints = {
+            'system-prompt': '/api/gemini/system-prompt',
+        };
+        return `https://mock-test-api-endpoint.com${endpoints[serviceName]}`;
+    }),
 }));
+
 
 
 
