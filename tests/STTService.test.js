@@ -57,20 +57,13 @@ global.FileReader = jest.fn(() => {
     return reader;
 });
 
-
-
-// global.FileReader = jest.fn(() => ({
-//     readAsDataURL: jest.fn(function () {
-//         // Directly simulate the onload handler
-//         this.result = 'data:audio/wav;base64,dGVzdCBhdWRpbyBkYXRh'; // Base64 string
-//         console.log('FileReader result:', this.result);
-//         if (typeof this.onload === 'function') {
-//             this.onload(); // Trigger the onload event
-//         }
-//     }),
-//     onload: null,
-// }));
-
+global.Blob = jest.fn((parts, options) => ({
+    parts,
+    options,
+    size: parts.reduce((size, part) => size + part.length, 0),
+    type: options?.type || '',
+  }));
+  
 
 describe('STTService', () => {
     let mockMediaStream;
