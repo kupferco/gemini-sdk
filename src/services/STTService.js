@@ -7,6 +7,7 @@ class STTService {
         this.mediaRecorder = null;
         this.socket = null;
         this.isRecording = false;
+        this.isMuted = false; // Flag to track mute state
         this.sessionId = null; // Store session ID
     }
 
@@ -22,7 +23,7 @@ class STTService {
             this.isRecording = true;
 
             // Generate a unique session ID
-            this.sessionId = SessionManager.getSessionId(); // Replace with SessionManager if needed
+            this.sessionId = SessionManager.getSessionId();
             console.log('Using session ID:', this.sessionId);
 
             this._startStreaming(callback);
@@ -52,6 +53,16 @@ class STTService {
         console.log('STTService has stopped listening.');
     }
 
+    stopSendingAudio() {
+        this.isMuted = true;
+        console.log('Audio streaming is muted.');
+    }
+
+    startSendingAudio() {
+        this.isMuted = false;
+        console.log('Audio streaming is resumed.');
+    }
+
     _startStreaming(callback) {
         const endpoint = Config.getEndpoint('stt');
         this.socket = new WebSocket(endpoint);
@@ -78,7 +89,11 @@ class STTService {
             // Start sending audio data
             const mediaRecorder = new MediaRecorder(this.mediaStream);
             mediaRecorder.ondataavailable = async event => {
-                // console.log('ondataavailable triggered with:', event.data); 
+                if (this.isMuted) {
+                    console.log('Muted: Audio blob not sent.');
+                    return; // Skip sending audio if muted
+                }
+
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     const reader = new FileReader();
                     reader.onload = () => {
@@ -103,9 +118,9 @@ class STTService {
             const data = JSON.parse(event.data);
             console.log('Received message from server:', data);
 
-            if (data.action === 'stt' && data.payload?.transcript || true) {
+            if (data.action === 'stt' && data.payload?.transcript) {
                 console.log('Invoking callback with transcript:', data.payload.transcript);
-                callback(data.payload.transcript); // Ensure the callback is invoked
+                callback(data.payload.transcript);
             }
         };
 
