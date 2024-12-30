@@ -78,7 +78,7 @@ class STTService {
             // Start sending audio data
             const mediaRecorder = new MediaRecorder(this.mediaStream);
             mediaRecorder.ondataavailable = async event => {
-                console.log('ondataavailable triggered with:', event.data); 
+                // console.log('ondataavailable triggered with:', event.data); 
                 if (this.socket && this.socket.readyState === WebSocket.OPEN) {
                     const reader = new FileReader();
                     reader.onload = () => {
@@ -88,7 +88,7 @@ class STTService {
                             sessionId: this.sessionId,
                             audioData: base64Audio,
                         };
-                        console.log('Sending stt_audio:', audioMessage);
+                        // console.log('Sending stt_audio:', audioMessage);
                         this.socket.send(JSON.stringify(audioMessage));
                     };
                     reader.readAsDataURL(event.data);
