@@ -13,7 +13,8 @@ class STTService {
         this.webSocketManager = new WebSocketManager(Config.getEndpoint('stt'));
     }
 
-    async startListening(callback) {
+    async startListening(callback, mode = 'default') {
+        this.mode = mode;
         if (this.isRecording) {
             console.warn('STTService: Already recording.');
             return;
@@ -27,7 +28,7 @@ class STTService {
             this.sessionId = SessionManager.getSessionId();
             console.log('STTService: Using session ID:', this.sessionId);
 
-            this._startStreaming(callback);
+            this._startStreaming(callback, mode);
         } catch (error) {
             console.error('STTService: Error starting microphone:', error);
             throw error;
@@ -73,7 +74,7 @@ class STTService {
         console.log('Audio streaming is resumed.');
     }
 
-    _startStreaming(callback) {
+    _startStreaming(callback, mode) {
         this.webSocketManager.connect();
 
         this.webSocketManager.socket.onerror = (error) => {
@@ -94,10 +95,16 @@ class STTService {
             action: 'start_session',
             sessionId: this.sessionId,
         });
-        this.webSocketManager.sendMessage({
+        const startSTTMessage = {
             action: 'start_stt',
             sessionId: this.sessionId,
-        });
+        };
+
+        if (mode) {
+            startSTTMessage.mode = mode; // Add the mode flag if provided
+        }
+
+        this.webSocketManager.sendMessage(startSTTMessage);
 
         // MediaRecorder setup remains unchanged
         const mediaRecorder = new MediaRecorder(this.mediaStream);

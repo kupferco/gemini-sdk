@@ -20,7 +20,9 @@
     import STTService from '../src/services/STTService.js';
 
     // Set API base URL
-    Config.setApiBaseUrl('https://localhost:8080');
+    // Config.setApiBaseUrl('https://localhost:8080');
+    Config.setApiBaseUrl('https://4c72-2a00-23c8-16b2-8301-bd9e-344c-ed68-58b6.ngrok-free.app');
+    // Config.setApiBaseUrl('https://proxy-server-14953211771.europe-west2.run.app');
 
     // Initialize session
     SessionManager.initializeSession();
@@ -42,10 +44,8 @@
         const paragraph = document.createElement('p');
         paragraph.textContent = `Transcription: ${transcript}`;
         output.appendChild(paragraph);
-      }).catch(error => console.error('Error starting microphone:', error));
+      }, 'stt_only' ).catch(error => console.error('Error starting microphone:', error));
     });
-
-
 
     document.getElementById('stop').addEventListener('click', () => {
       sttService.stopListening();
