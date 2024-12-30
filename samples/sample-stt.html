@@ -10,6 +10,8 @@
 <body>
   <button id="start">Start Listening</button>
   <button id="stop">Stop Listening</button>
+  <button id="mute">Mute</button>
+
   <div id="output"></div>
 
   <script type="module">
@@ -47,6 +49,22 @@
 
     document.getElementById('stop').addEventListener('click', () => {
       sttService.stopListening();
+    });
+
+    let isMuted = false;
+
+    document.getElementById('mute').addEventListener('click', () => {
+      isMuted = !isMuted;
+      const muteButton = document.getElementById('mute');
+      muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+
+      if (isMuted) {
+        console.log('Audio streaming muted');
+        sttService.stopSendingAudio(); // Add this method to STTService if not already defined
+      } else {
+        console.log('Audio streaming resumed');
+        sttService.startSendingAudio(); // Add this method to STTService if not already defined
+      }
     });
 
 

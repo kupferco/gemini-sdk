@@ -214,4 +214,40 @@ describe('STTService', () => {
         expect(console.error).toHaveBeenCalledWith('WebSocket error:', mockError);
     });
 
+    test('should not send audio blobs when muted', async () => {
+        const sttService = new STTService();
+        const mockCallback = jest.fn();
+
+        await sttService.startListening(mockCallback);
+
+        // Simulate WebSocket opening
+        sttService.socket.onopen();
+
+        // Mute the audio streaming
+        sttService.stopSendingAudio();
+        expect(sttService.isMuted).toBe(true);
+
+        // Simulate MediaRecorder's dataavailable event while muted
+        const mockBlob = new Blob(['test audio data'], { type: 'audio/wav' });
+        sttService.mediaRecorder.ondataavailable({ data: mockBlob });
+
+        // Assert that WebSocket does not send stt_audio while muted
+        expect(sttService.socket.send).not.toHaveBeenCalledWith(
+            expect.stringContaining('"action":"stt_audio"')
+        );
+
+        // Unmute the audio streaming
+        sttService.startSendingAudio();
+        expect(sttService.isMuted).toBe(false);
+
+        // Simulate MediaRecorder's dataavailable event after unmuting
+        sttService.mediaRecorder.ondataavailable({ data: mockBlob });
+
+        // Assert that WebSocket sends stt_audio after unmuting
+        expect(sttService.socket.send).toHaveBeenCalledWith(
+            expect.stringContaining('"action":"stt_audio"')
+        );
+    });
+
+
 });
