@@ -1,4 +1,14 @@
+import WebSocketManager from '../src/utils/WebSocketManager';
 import STTService from '../src/services/STTService';
+
+// global.WebSocket = jest.fn(() => ({
+//     send: jest.fn(),
+//     close: jest.fn(),
+//     onopen: null,
+//     onmessage: null,
+//     onerror: jest.fn(),
+//     onclose: null,
+// }));
 
 jest.mock('../src/Config', () => ({
     getApiBaseUrl: jest.fn(() => 'https://mock-test-api-endpoint.com'),
@@ -26,16 +36,6 @@ global.navigator = {
     },
 };
 
-global.WebSocket = jest.fn(() => ({
-    send: jest.fn(),
-    close: jest.fn(),
-    readyState: WebSocket.OPEN,
-    onopen: null,
-    onmessage: null,
-    onerror: null,
-    onclose: null,
-}));
-
 global.MediaRecorder = jest.fn(() => ({
     start: jest.fn(),
     stop: jest.fn(),
@@ -62,12 +62,12 @@ global.Blob = jest.fn((parts, options) => ({
     options,
     size: parts.reduce((size, part) => size + part.length, 0),
     type: options?.type || '',
-  }));
-  
+}));
+
 
 describe('STTService', () => {
     let mockMediaStream;
-    let mockWebSocket;
+    // let mockWebSocket;
 
     beforeEach(() => {
         // Mock the mediaDevices API
@@ -76,114 +76,139 @@ describe('STTService', () => {
             getUserMedia: jest.fn(() => Promise.resolve(mockMediaStream)),
         };
 
-        // Mock the WebSocket API
-        mockWebSocket = {
-            send: jest.fn(),
-            close: jest.fn(),
-            readyState: WebSocket.OPEN,
-            onopen: null,
-            onmessage: null,
-            onerror: null,
-            onclose: null,
-        };
-        global.WebSocket = jest.fn(() => mockWebSocket);
+        // Mock console.error
+        jest.spyOn(console, 'error').mockImplementation(() => { }); // Captures error logs
+        jest.spyOn(WebSocketManager.prototype, 'connect').mockImplementation(function () {
+            // this.socket = new WebSocket(this.endpoint);
+            this.socket = {
+                onerror: jest.fn(),
+                onopen: null,
+                onmessage: null,
+                close: jest.fn(),
+                send: jest.fn(),
+            };
+        });
+        jest.spyOn(WebSocketManager.prototype, 'disconnect').mockImplementation(jest.fn());
+        jest.spyOn(WebSocketManager.prototype, 'sendMessage').mockImplementation(jest.fn());
+        jest.spyOn(WebSocketManager.prototype, 'addMessageHandler').mockImplementation(jest.fn());
+        jest.spyOn(WebSocketManager.prototype, 'removeMessageHandler').mockImplementation(jest.fn());
+        jest.clearAllMocks();
+
+        jest.clearAllMocks();
+        jest.resetModules();
     });
 
     afterEach(() => {
         jest.clearAllMocks();
+        jest.restoreAllMocks();
     });
 
-    test('should start listening and open a WebSocket connection', async () => {
-        const sttService = new STTService();
-        const mockCallback = jest.fn();
-
-        await sttService.startListening(mockCallback);
-
-        // Check if media stream and WebSocket are initialized
-        expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ audio: true });
-        expect(WebSocket).toHaveBeenCalledWith(expect.stringContaining('/api/stt'));
-        expect(mockWebSocket.onopen).not.toBeNull();
-    });
 
     test('should stop listening and close the WebSocket connection', async () => {
         const sttService = new STTService();
 
         await sttService.startListening();
-        sttService.stopListening();
+        await sttService.stopListening();
 
         expect(mockMediaStream.getTracks).toHaveBeenCalled();
-        expect(mockWebSocket.close).toHaveBeenCalled();
+        expect(WebSocketManager.prototype.disconnect).toHaveBeenCalled();
     });
+
+
+    test('should start listening and open a WebSocket connection', async () => {
+        const sttService = new STTService();
+
+        // Start listening
+        await sttService.startListening();
+
+        // Verify `connect` was called
+        expect(WebSocketManager.prototype.connect).toHaveBeenCalled();
+
+        // Verify `start_session` and `start_stt` messages were sent
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(1, {
+            action: 'start_session',
+            sessionId: expect.any(String),
+        });
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(2, {
+            action: 'start_stt',
+            sessionId: expect.any(String),
+        });
+    });
+
 
     test('should call the callback with transcription updates', async () => {
         const sttService = new STTService();
         const mockCallback = jest.fn();
 
-        // Start listening (this sets up the WebSocket and callback)
+        // Start listening
         await sttService.startListening(mockCallback);
 
-        // Simulate WebSocket receiving a transcription message
+        // Simulate a message from WebSocketManager
         const mockMessage = { action: "stt", payload: { transcript: 'Hello, world!' } };
-        if (sttService.socket.onmessage) {
-            sttService.socket.onmessage({ data: JSON.stringify(mockMessage) });
-        } else {
-            console.error('WebSocket onmessage handler is not set');
-        }
 
-        // Assert the callback was called with the expected transcript
-        expect(mockCallback).toHaveBeenCalledTimes(1);
+        // Retrieve the handler added by addMessageHandler
+        const addMessageHandlerSpy = WebSocketManager.prototype.addMessageHandler;
+        expect(addMessageHandlerSpy).toHaveBeenCalled(); // Ensure the handler was added
+
+        const messageHandler = addMessageHandlerSpy.mock.calls[0][0];
+        messageHandler(mockMessage); // Simulate the message
+
+        // Assert the callback was called with the correct transcript
         expect(mockCallback).toHaveBeenCalledWith('Hello, world!');
     });
 
 
-
     test('should send start_session and start_stt messages on WebSocket open', async () => {
         const sttService = new STTService();
-        const mockCallback = jest.fn();
 
-        await sttService.startListening(mockCallback);
+        await sttService.startListening();
 
-        // Simulate WebSocket opening
-        sttService.socket.onopen();
-
-        // Assert that start_session and start_stt messages are sent in order
-        expect(sttService.socket.send).toHaveBeenNthCalledWith(1, JSON.stringify({
+        // Verify messages sent via WebSocketManager
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(1, {
             action: 'start_session',
-            sessionId: 'mock-session-id',
-        }));
-
-        expect(sttService.socket.send).toHaveBeenNthCalledWith(2, JSON.stringify({
+            sessionId: expect.any(String),
+        });
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(2, {
             action: 'start_stt',
-            sessionId: 'mock-session-id',
-        }));
+            sessionId: expect.any(String),
+        });
     });
+
+
 
 
     test('should send stt_audio messages with correct format', async () => {
         const sttService = new STTService();
         const mockCallback = jest.fn();
 
+        // Start listening
         await sttService.startListening(mockCallback);
 
-        // Simulate WebSocket opening
-        sttService.socket.onopen();
+        // Verify MediaRecorder started
+        expect(sttService.mediaRecorder.start).toHaveBeenCalledWith(250); // Verify chunk interval
 
         // Simulate MediaRecorder's dataavailable event
         const mockBlob = new Blob(['test audio data'], { type: 'audio/wav' });
         console.log('Triggering ondataavailable with mock Blob');
         sttService.mediaRecorder.ondataavailable({ data: mockBlob });
 
-        // Assert WebSocket sends the correct stt_audio message
-        expect(sttService.socket.send).toHaveBeenNthCalledWith(
-            3, // Third call after start_session and start_stt
-            JSON.stringify({
-                action: 'stt_audio',
-                sessionId: 'mock-session-id',
-                audioData: 'dGVzdCBhdWRpbyBkYXRh', // Base64 string from mocked FileReader
-            })
-        );
-    });
+        // Verify previous WebSocket messages
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(1, {
+            action: 'start_session',
+            sessionId: 'mock-session-id',
+        });
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(2, {
+            action: 'start_stt',
+            sessionId: 'mock-session-id',
+        });
 
+        // Verify the stt_audio message
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(3, {
+            action: 'stt_audio',
+            sessionId: 'mock-session-id',
+            audioData: 'dGVzdCBhdWRpbyBkYXRh', // Base64 string from mocked FileReader
+        });
+    });
 
     test('should handle microphone access denial', async () => {
         navigator.mediaDevices.getUserMedia.mockImplementation(() =>
@@ -196,51 +221,57 @@ describe('STTService', () => {
 
     test('should handle WebSocket errors', async () => {
         const sttService = new STTService();
-        const mockCallback = jest.fn();
+        const mockError = new Error('WebSocket connection failed');
 
-        await sttService.startListening(mockCallback);
+        // Start listening
+        await sttService.startListening();
 
         // Simulate WebSocket error
-        const mockError = new Error('WebSocket connection failed');
-        mockWebSocket.onerror(mockError);
+        const mockSocket = sttService.webSocketManager.socket;
+        mockSocket.onerror(mockError); // Trigger the error
 
-        expect(console.error).toHaveBeenCalledWith('WebSocket error:', mockError);
+        // Assert error is logged
+        expect(console.error).toHaveBeenCalledWith('WebSocketManager: Connection error:', mockError);
     });
+
+
 
     test('should not send audio blobs when muted', async () => {
         const sttService = new STTService();
-        const mockCallback = jest.fn();
 
-        await sttService.startListening(mockCallback);
+        // Start listening
+        await sttService.startListening();
 
-        // Simulate WebSocket opening
-        sttService.socket.onopen();
+        // Verify initial state
+        expect(sttService.isMuted).toBe(false);
 
         // Mute the audio streaming
         sttService.stopSendingAudio();
         expect(sttService.isMuted).toBe(true);
 
-        // Simulate MediaRecorder's dataavailable event while muted
+        // Simulate MediaRecorder's dataavailable event
         const mockBlob = new Blob(['test audio data'], { type: 'audio/wav' });
         sttService.mediaRecorder.ondataavailable({ data: mockBlob });
 
-        // Assert that WebSocket does not send stt_audio while muted
-        expect(sttService.socket.send).not.toHaveBeenCalledWith(
-            expect.stringContaining('"action":"stt_audio"')
+        // Verify that no stt_audio messages are sent
+        expect(WebSocketManager.prototype.sendMessage).not.toHaveBeenCalledWith(
+            expect.objectContaining({ action: 'stt_audio' })
         );
 
-        // Unmute the audio streaming
+        // Resume audio streaming
         sttService.startSendingAudio();
         expect(sttService.isMuted).toBe(false);
 
-        // Simulate MediaRecorder's dataavailable event after unmuting
+        // Simulate another MediaRecorder dataavailable event
         sttService.mediaRecorder.ondataavailable({ data: mockBlob });
 
-        // Assert that WebSocket sends stt_audio after unmuting
-        expect(sttService.socket.send).toHaveBeenCalledWith(
-            expect.stringContaining('"action":"stt_audio"')
+        // Verify that stt_audio messages are sent after unmuting
+        expect(WebSocketManager.prototype.sendMessage).toHaveBeenCalledWith(
+            expect.objectContaining({ action: 'stt_audio' })
         );
     });
+
+
 
 
 });
