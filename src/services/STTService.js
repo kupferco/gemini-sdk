@@ -89,7 +89,7 @@ class STTService {
         };
         this.webSocketManager.addMessageHandler(this._messageHandler);
 
-        console.log(this.sessionId)
+        // console.log(this.sessionId)
         // Use WebSocketManager to send messages once connected
         this.webSocketManager.sendMessage({
             action: 'start_session',

@@ -11,6 +11,7 @@ class Config {
     }
   
     setApiBaseUrl(baseUrl) {
+      console.log(baseUrl)
       this.apiBaseUrl = baseUrl;
     }
   
