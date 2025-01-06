@@ -34,5 +34,4 @@ class TTSService {
     }
 }
 
-const ttsServiceInstance = new TTSService();
-export default ttsServiceInstance;
+export default TTSService;

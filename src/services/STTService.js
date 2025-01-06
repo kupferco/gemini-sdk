@@ -1,20 +1,20 @@
-import WebSocketManager from '../../src/utils/WebSocketManager';
+import WebSocketManager from '../utils/WebSocketManager';
 import Config from '../Config';
 import SessionManager from '../session/SessionManager.js';
 
 class STTService {
     constructor() {
+        this.webSocketManager = WebSocketManager;
+        this.sessionId = null;
+        this.isRecording = false;
         this.mediaStream = null;
         this.mediaRecorder = null;
-        this.socket = null;
-        this.isRecording = false;
         this.isMuted = false;
-        this.sessionId = null;
-        this.webSocketManager = new WebSocketManager(Config.getEndpoint('stt'));
+        this._messageHandler = null;
+        this.endpoint = Config.getEndpoint('voice'); // Single WebSocket endpoint
     }
 
     async startListening(callback, mode = 'default') {
-        this.mode = mode;
         if (this.isRecording) {
             console.warn('STTService: Already recording.');
             return;
@@ -28,7 +28,26 @@ class STTService {
             this.sessionId = SessionManager.getSessionId();
             console.log('STTService: Using session ID:', this.sessionId);
 
-            this._startStreaming(callback, mode);
+            this.webSocketManager.connect(this.endpoint);
+            const connection = this.webSocketManager.connection;
+            connection.onerror = (error) => {
+                console.error('WebSocketManager: Connection error:', error);
+            };
+
+            // Ensure no duplicate handlers
+            if (this._messageHandler) {
+                this.webSocketManager.removeMessageHandler(this._messageHandler);
+            }
+
+            this._messageHandler = (data) => {
+                if (data.action === 'stt' && data.payload?.transcript) {
+                    callback(data.payload.transcript);
+                }
+            };
+
+            this.webSocketManager.addMessageHandler(this._messageHandler);
+
+            this._startStreaming(mode);
         } catch (error) {
             console.error('STTService: Error starting microphone:', error);
             throw error;
@@ -41,80 +60,48 @@ class STTService {
             return;
         }
 
-        // Stop MediaRecorder
-        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+        if (this.mediaRecorder?.state !== 'inactive') {
             this.mediaRecorder.stop();
             console.log('STTService: MediaRecorder stopped.');
         }
-        this.mediaRecorder = null;
 
-        // Stop media stream
-        this.mediaStream.getTracks().forEach((track) => track.stop());
+        this.mediaStream?.getTracks().forEach((track) => track.stop());
         this.mediaStream = null;
 
-        // Remove all message handlers
         this.webSocketManager.removeMessageHandler(this._messageHandler);
+        this._messageHandler = null;
 
-        // Disconnect WebSocket
         this.webSocketManager.disconnect();
-
         this.isRecording = false;
         console.log('STTService: Stopped listening.');
     }
 
-
-
     stopSendingAudio() {
         this.isMuted = true;
-        console.log('Audio streaming is muted.');
+        console.log('STTService: Audio streaming is muted.');
     }
 
     startSendingAudio() {
         this.isMuted = false;
-        console.log('Audio streaming is resumed.');
+        console.log('STTService: Audio streaming is resumed.');
     }
 
-    _startStreaming(callback, mode) {
-        this.webSocketManager.connect();
-
-        this.webSocketManager.socket.onerror = (error) => {
-            console.error('WebSocketManager: Connection error:', error);
-        };
-
-        this._messageHandler = (data) => {
-            console.log('STTService: Received message:', data);
-            if (data.action === 'stt' && data.payload?.transcript) {
-                callback(data.payload.transcript);
-            }
-        };
-        this.webSocketManager.addMessageHandler(this._messageHandler);
-
-        // console.log(this.sessionId)
-        // Use WebSocketManager to send messages once connected
+    _startStreaming(mode) {
         this.webSocketManager.sendMessage({
             action: 'start_session',
             sessionId: this.sessionId,
         });
-        const startSTTMessage = {
+
+        this.webSocketManager.sendMessage({
             action: 'start_stt',
             sessionId: this.sessionId,
-        };
+            mode,
+        });
 
-        if (mode) {
-            startSTTMessage.mode = mode; // Add the mode flag if provided
-        }
-
-        this.webSocketManager.sendMessage(startSTTMessage);
-
-        // MediaRecorder setup remains unchanged
         const mediaRecorder = new MediaRecorder(this.mediaStream);
         mediaRecorder.ondataavailable = (event) => {
             if (this.isMuted) {
                 console.log('STTService: Audio muted. Skipping blob.');
-                return;
-            }
-            if (!this.isRecording) {
-                console.log('STTService: Not recording. Ignoring blob.');
                 return;
             }
             const reader = new FileReader();

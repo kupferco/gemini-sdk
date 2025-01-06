@@ -1,80 +1,83 @@
 class WebSocketManager {
-  constructor(endpoint) {
-    this.endpoint = endpoint;
-    this.socket = null;
-    this.isConnected = false;
-    this.messageQueue = []; // Queue to buffer messages
-    this.messageHandlers = [];
+  constructor() {
+      if (WebSocketManager.instance) {
+          return WebSocketManager.instance;
+      }
+
+      this.connection = null; // Single WebSocket connection
+      this.isConnected = false;
+      this.messageQueue = [];
+      this.messageHandlers = []; // Shared handler list for all services
+      WebSocketManager.instance = this;
   }
 
-  connect() {
-    if (this.isConnected || this.socket) {
-      console.warn('WebSocketManager: Already connected.');
-      return;
-    }
-
-    this.socket = new WebSocket(this.endpoint);
-
-    this.socket.onopen = () => {
-      console.log('WebSocketManager: Connection opened.');
-      this.isConnected = true;
-
-      // Send all queued messages
-      while (this.messageQueue.length > 0) {
-        const message = this.messageQueue.shift();
-        this.sendMessage(message);
+  connect(endpoint) {
+      if (this.connection) {
+          console.warn(`WebSocketManager: Already connected to ${endpoint}.`);
+          return;
       }
-    };
 
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('WebSocketManager: Received message:', data);
+      this.connection = new WebSocket(endpoint);
 
-      // Notify all registered handlers
-      this.messageHandlers.forEach((handler) => handler(data));
-    };
+      this.connection.onopen = () => {
+          console.log(`WebSocketManager: Connection opened to ${endpoint}.`);
+          this.isConnected = true;
 
-    this.socket.onerror = (error) => {
-      console.error('WebSocketManager: Connection error:', error);
-    };
+          // Send all queued messages
+          while (this.messageQueue.length > 0) {
+              const message = this.messageQueue.shift();
+              this.sendMessage(message);
+          }
+      };
 
-    this.socket.onclose = () => {
-      console.log('WebSocketManager: Connection closed.');
-      this.isConnected = false;
-      this.socket = null;
-    };
+      this.connection.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log('WebSocketManager: Message received:', data);
+
+          // Notify all registered handlers
+          this.messageHandlers.forEach((handler) => handler(data));
+      };
+
+      this.connection.onerror = (error) => {
+          console.error('WebSocketManager: Connection error:', error);
+      };
+
+      this.connection.onclose = () => {
+          console.log('WebSocketManager: Connection closed.');
+          this.isConnected = false;
+          this.connection = null;
+      };
   }
 
   disconnect() {
-    if (!this.socket) {
-      console.warn('WebSocketManager: No active connection to close.');
-      return;
-    }
+      if (!this.connection) {
+          console.warn('WebSocketManager: No active connection to close.');
+          return;
+      }
 
-    this.socket.close();
-    this.socket = null;
-    this.isConnected = false;
+      this.connection.close();
+      this.connection = null;
+      this.isConnected = false;
   }
 
   sendMessage(message) {
-    if (!this.isConnected || !this.socket || this.socket.readyState !== WebSocket.OPEN) {
-      console.log('WebSocketManager: Queueing message since connection is not open:', message);
-      this.messageQueue.push(message); // Buffer the message
-      return;
-    }
+      if (!this.isConnected || this.connection.readyState !== WebSocket.OPEN) {
+          console.log('WebSocketManager: Queueing message:', message);
+          this.messageQueue.push(message);
+          return;
+      }
 
-    // console.log('WebSocketManager: Sending message:', message);
-    this.socket.send(JSON.stringify(message));
+      this.connection.send(JSON.stringify(message));
   }
 
   addMessageHandler(handler) {
-    this.messageHandlers.push(handler);
+      this.messageHandlers.push(handler);
   }
 
   removeMessageHandler(handler) {
-    this.messageHandlers = this.messageHandlers.filter((h) => h !== handler);
-    console.log('WebSocketManager: Message handler removed.');
+      this.messageHandlers = this.messageHandlers.filter((h) => h !== handler);
+      console.log('WebSocketManager: Message handler removed.');
   }
 }
 
-export default WebSocketManager;
+export default new WebSocketManager();
