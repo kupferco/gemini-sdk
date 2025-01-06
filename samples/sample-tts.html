@@ -31,8 +31,6 @@
         <input type="text" id="text-input" placeholder="Enter text to synthesize"
             style="width: 100%; padding: 10px; margin-bottom: 10px;">
         <button id="play-rest">Play TTS via REST</button>
-        <button id="connect-websocket">Connect WebSocket</button>
-        <button id="disconnect-websocket">Disconnect WebSocket</button>
     </div>
 
     <div id="output">
@@ -48,7 +46,7 @@
         import TTSRestService from '../src/services/TTSRestService.js';
         import TTSWebSocketService from '../src/services/TTSWebSocketService.js';
         
-        Config.setApiBaseUrl('https://4c72-2a00-23c8-16b2-8301-bd9e-344c-ed68-58b6.ngrok-free.app');
+        Config.setApiBaseUrl('https://95b0-2a00-23c8-16b2-8301-da3-adec-4c3a-99c6.ngrok-free.app');
 
         // Initialize session
         SessionManager.initializeSession();
@@ -72,16 +70,6 @@
             }
             logMessage(`Sending text to REST: "${text}"`);
             await TTSRestService.fetchAndPlayText(text);
-        });
-
-        document.getElementById('connect-websocket').addEventListener('click', () => {
-            logMessage('Connecting to WebSocket...');
-            TTSService.connect();
-        });
-
-        document.getElementById('disconnect-websocket').addEventListener('click', () => {
-            logMessage('Disconnecting from WebSocket...');
-            TTSService.disconnect();
         });
     </script>
 </body>

@@ -132,6 +132,7 @@ describe('STTService', () => {
         expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(2, {
             action: 'start_stt',
             sessionId: expect.any(String),
+            mode: 'default',
         });
     });
 
@@ -171,6 +172,7 @@ describe('STTService', () => {
         expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(2, {
             action: 'start_stt',
             sessionId: expect.any(String),
+            mode: 'default',
         });
     });
 
@@ -200,6 +202,7 @@ describe('STTService', () => {
         expect(WebSocketManager.prototype.sendMessage).toHaveBeenNthCalledWith(2, {
             action: 'start_stt',
             sessionId: 'mock-session-id',
+            mode: 'default',
         });
 
         // Verify the stt_audio message
