@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Sample</title>
+</head>
+
+<body>
+    <h1>Voice Interaction</h1>
+
+    <!-- Buttons for actions -->
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="mute">Mute</button>
+    <button id="unmute">Unmute</button>
+    <button id="interrupt">Interrupt</button>
+    <button id="clear-history">Clear History</button>
+    <button id="new-session">Start New Session</button>
+
+    <!-- Log area to display the conversation -->
+    <div id="conversation-log"
+        style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto;">
+        <p>Conversation will appear here...</p>
+    </div>
+
+    <script type="module">
+        import Config from '../src/Config.js';
+        import STTService from '../src/services/STTService';
+        import TTSService from '../src/services/TTSWebSocketService';
+        import SessionManager from '../src/session/SessionManager.js';
+
+        Config.setApiBaseUrl('https://ee97-2a00-23c8-16b2-8301-da3-adec-4c3a-99c6.ngrok-free.app');
+
+        // Initialize session
+        SessionManager.initializeSession();
+
+        const sttService = new STTService();
+        const ttsService = new TTSService();
+
+        let isMuted = false;
+
+        const updateButtonStates = (micActive) => {
+            document.getElementById('start').disabled = micActive;
+            document.getElementById('stop').disabled = !micActive;
+            document.getElementById('mute').disabled = !micActive || isMuted;
+            document.getElementById('unmute').disabled = !micActive || !isMuted;
+            document.getElementById('interrupt').disabled = !micActive;
+            document.getElementById('clear-history').disabled = micActive;
+            document.getElementById('new-session').disabled = micActive;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const startButton = document.getElementById('start');
+            const stopButton = document.getElementById('stop');
+            const muteButton = document.getElementById('mute');
+            const unmuteButton = document.getElementById('unmute');
+            const interruptButton = document.getElementById('interrupt');
+            const clearHistoryButton = document.getElementById('clear-history');
+            const newSessionButton = document.getElementById('new-session');
+            const conversationLog = document.getElementById('conversation-log');
+
+            const appendToLog = (message, role = 'system') => {
+                const p = document.createElement('p');
+                p.textContent = `${role}: ${message}`;
+                conversationLog.appendChild(p);
+                conversationLog.scrollTop = conversationLog.scrollHeight;
+            };
+
+            const handleSTTCallback = (transcript) => {
+                appendToLog(transcript, 'User');
+            };
+
+            startButton.addEventListener('click', async () => {
+                try {                    
+                    await sttService.startListening(handleSTTCallback);
+                    updateButtonStates(true); // Mic is now active
+                    appendToLog('Microphone started', 'System');
+                    // Connect TTSWebSocketService to start listening for events
+                    await ttsService.connect();
+                } catch (error) {
+                    console.error('Error starting microphone:', error);
+                    appendToLog('Error starting microphone.', 'Error');
+                }
+            });
+
+            stopButton.addEventListener('click', () => {
+                sttService.stopListening();
+                updateButtonStates(false); // Mic is now inactive
+                appendToLog('Microphone stopped', 'System');
+            });
+
+            muteButton.addEventListener('click', () => {
+                sttService.stopSendingAudio();
+                isMuted = true;
+                updateButtonStates(true); // Update for mute state
+                appendToLog('Audio muted', 'System');
+            });
+
+            unmuteButton.addEventListener('click', () => {
+                sttService.startSendingAudio();
+                isMuted = false;
+                updateButtonStates(true); // Update for unmute state
+                appendToLog('Audio unmuted', 'System');
+            });
+
+            interruptButton.addEventListener('click', () => {
+                ttsService.interruptAudio();
+                appendToLog('TTS interrupted', 'System');
+            });
+
+            clearHistoryButton.addEventListener('click', () => {
+                SessionManager.initializeSession();
+                conversationLog.innerHTML = ''; // Clear log visually
+                appendToLog('Conversation history cleared', 'System');
+            });
+
+            newSessionButton.addEventListener('click', () => {
+                SessionManager.renewSession();
+                conversationLog.innerHTML = ''; // Clear log visually
+                appendToLog('New session started', 'System');
+            });
+
+            // Initialize button states
+            updateButtonStates(false); // Mic is initially inactive
+        });
+    </script>
+
+</body>
+
+</html>

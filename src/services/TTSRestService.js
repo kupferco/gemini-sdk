@@ -1,7 +1,7 @@
-import ttsServiceInstance from './TTSService';
+import TTSService from './TTSService';
 import Config from '../Config';
 
-class TTSRestService {
+class TTSRestService extends TTSService {
     async fetchAndPlayText(text) {
         try {
             const response = await fetch(`${Config.getEndpoint('tts')}`, {
@@ -15,11 +15,12 @@ class TTSRestService {
             }
 
             const audioBlob = await response.blob();
-            await ttsServiceInstance.playAudio(audioBlob);
+            this.playAudio(audioBlob); // Use the inherited playAudio method
         } catch (error) {
             console.error('TTSRestService: Error fetching or playing TTS:', error);
         }
     }
 }
 
-export default new TTSRestService();
+export default TTSRestService;
+
