@@ -69,6 +69,16 @@ describe('STTService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+
+        if (typeof global.Blob === 'undefined') {
+            global.Blob = jest.fn((parts, options) => ({
+                parts,
+                options,
+                size: parts.reduce((size, part) => size + part.length, 0),
+                type: options?.type || '',
+            }));
+        }
+
         jest.spyOn(console, 'error').mockImplementation(() => { });
         sttService = new STTService();
 
@@ -79,11 +89,6 @@ describe('STTService', () => {
             })
         );
     });
-
-    // beforeEach(() => {
-    //     jest.clearAllMocks(); // Reset mocks before each test
-    //     sttService = new STTService();
-    // });
 
     afterEach(() => {
         jest.restoreAllMocks(); // Restore original implementations after each test

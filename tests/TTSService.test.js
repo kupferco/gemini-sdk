@@ -12,6 +12,16 @@ describe('TTSService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+
+        if (typeof global.Blob === 'undefined') {
+            global.Blob = jest.fn((parts, options) => ({
+                parts,
+                options,
+                size: parts.reduce((size, part) => size + part.length, 0),
+                type: options?.type || '',
+            }));
+        }
+
         jest.spyOn(console, 'error').mockImplementation(() => { });
         jest.spyOn(console, 'log').mockImplementation(() => { });
 
@@ -22,6 +32,8 @@ describe('TTSService', () => {
             currentTime: 0,
             onended: null,
         }));
+
+        global.URL.createObjectURL = jest.fn(() => 'mock-audio-url');
 
         ttsService = new TTSService();
     });
