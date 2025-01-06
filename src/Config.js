@@ -6,7 +6,7 @@ class Config {
         stt: '/api/stt',
         tts: '/api/tts',
         gemini: '/api/gemini',
-        geminiHistory: '/api/gemzini/history',
+        geminiHistory: '/api/gemini/history',
         voice: ' ',
       };
     }
