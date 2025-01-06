@@ -29,6 +29,10 @@ class STTService {
             console.log('STTService: Using session ID:', this.sessionId);
 
             this.webSocketManager.connect(this.endpoint);
+            const connection = this.webSocketManager.connection;
+            connection.onerror = (error) => {
+                console.error('WebSocketManager: Connection error:', error);
+            };
 
             // Ensure no duplicate handlers
             if (this._messageHandler) {
@@ -67,6 +71,7 @@ class STTService {
         this.webSocketManager.removeMessageHandler(this._messageHandler);
         this._messageHandler = null;
 
+        this.webSocketManager.disconnect();
         this.isRecording = false;
         console.log('STTService: Stopped listening.');
     }
