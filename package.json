@@ -6,7 +6,9 @@
   "scripts": {
     "test": "jest --coverage",
     "test:watch": "jest --watch",
-    "dev": "vite"
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite preview"
   },
   "keywords": [],
   "author": "",

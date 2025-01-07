@@ -21,8 +21,10 @@
 
     // Set API base URL
     // Config.setApiBaseUrl('https://localhost:8080');
-    Config.setApiBaseUrl('https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app');
+    // Config.setApiBaseUrl('https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app');
     // Config.setApiBaseUrl('https://proxy-server-14953211771.europe-west2.run.app');
+
+    Config.setApiBaseUrl(Config.getApiBaseUrl());
 
     // Initialize session
     SessionManager.initializeSession();

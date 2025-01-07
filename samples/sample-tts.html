@@ -46,7 +46,7 @@
         import TTSRestService from '../src/services/TTSRestService.js';
         // import TTSWebSocketService from '../src/services/TTSWebSocketService.js';
         
-        Config.setApiBaseUrl('https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app');
+        Config.setApiBaseUrl(Config.getApiBaseUrl());
 
         // Initialize session
         SessionManager.initializeSession();

@@ -96,7 +96,7 @@
         import SessionManager from '../src/session/SessionManager.js';
         import ConversationService from '../src/services/ConversationService.js';
 
-        Config.setApiBaseUrl('https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app');
+        Config.setApiBaseUrl(Config.getApiBaseUrl());
 
         document.addEventListener('DOMContentLoaded', async () => {
             const conversationLog = document.getElementById('conversation-log');
