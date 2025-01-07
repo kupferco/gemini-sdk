@@ -52,6 +52,35 @@ class GeminiService {
     setResponseHandler(handler) {
         this.onGeminiResponse = handler;
     }
+
+    async sendRestMessage(sessionId, inputText) {
+        try {
+            const response = await fetch(`${Config.getApiBaseUrl()}/api/gemini`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    sessionId,
+                    inputText,
+                }),
+            });
+
+            console.log(sessionId, inputText)
+
+            if (!response.ok) {
+                console.error('Failed to send REST message to Gemini.');
+                return null;
+            }
+
+            const data = await response.json();
+            return data.response || null;
+        } catch (error) {
+            console.error('Error sending REST message to Gemini:', error);
+            return null;
+        }
+    }
+
 }
 
 export default GeminiService;
