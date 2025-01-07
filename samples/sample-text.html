@@ -8,52 +8,66 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Full viewport height */
         }
-
+    
+        #controls {
+            margin-bottom: 10px;
+            padding: 0px;
+            /* background-color: #f8f8f8; */
+            /* border-bottom: 1px solid #ccc; */
+        }
+    
         #conversation-log {
+            flex: 1; /* Allow the conversation log to grow and fill available space */
             border: 1px solid #ccc;
-            height: 400px;
             overflow-y: auto;
             padding: 10px;
-            margin-bottom: 10px;
+            background-color: #fff;
+            margin: 20px 0px;
         }
-
+    
         #conversation-log p {
             margin: 5px 0;
             padding: 5px 10px;
             border-radius: 5px;
         }
-
-        #conversation-log p.agent {
+    
+        #conversation-log p.assistant {
             text-align: left;
             background-color: #f1f1f1;
         }
-
+    
         #conversation-log p.user {
             text-align: right;
             background-color: #e6f7ff;
         }
-
+    
         #input-section {
             display: flex;
             gap: 10px;
+            /* padding: 0px; */
+            /* background-color: #f8f8f8; */
+            /* border-top: 1px solid #ccc; */
         }
-
+    
         input[type="text"] {
             flex: 1;
             padding: 10px;
             font-size: 16px;
         }
-
+    
         button {
             padding: 10px 20px;
+            margin: 5px 0px;
             font-size: 16px;
         }
-
-        #controls {
-            margin-bottom: 10px;
-        }
     </style>
+    
 </head>
 
 <body>
@@ -129,13 +143,13 @@
                     const response = await geminiService.sendRestMessage(sessionId, message);
 
                     if (response) {
-                        appendToLog(response, 'agent');
+                        appendToLog(response, 'assistant');
                     } else {
-                        appendToLog('Failed to get a response from Gemini.', 'agent');
+                        appendToLog('Failed to get a response from Gemini.', 'assistant');
                     }
                 } catch (error) {
                     console.error('Error sending message:', error);
-                    appendToLog('An error occurred. Please try again.', 'agent');
+                    appendToLog('An error occurred. Please try again.', 'assistant');
                 }
             };
 
