@@ -33,7 +33,7 @@
         import ConversationService from '../src/services/ConversationService.js';
         import SessionManager from '../src/session/SessionManager.js';
     
-        Config.setApiBaseUrl('https://ee97-2a00-23c8-16b2-8301-da3-adec-4c3a-99c6.ngrok-free.app');
+        Config.setApiBaseUrl('https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app');
     
         // Initialize single instances of services
         const sttService = new STTService();
@@ -60,7 +60,7 @@
             const appendToLog = (message, role) => {
                 const p = document.createElement('p');
                 p.textContent = message.trim();
-                p.style.textAlign = role === 'user' ? 'left' : 'right';
+                p.style.textAlign = role === 'user' ? 'right' : 'left';
                 conversationLog.appendChild(p);
                 conversationLog.scrollTop = conversationLog.scrollHeight;
             };
