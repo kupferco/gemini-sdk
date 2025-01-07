@@ -11,6 +11,7 @@ jest.mock('../src/utils/WebSocketManager', () => ({
 
 jest.mock('../src/Config', () => ({
     getEndpoint: jest.fn(() => 'ws://mock-websocket-endpoint'),
+    getApiBaseUrl: jest.fn(() => 'https://mock-api-base-url'),
 }));
 
 describe('GeminiService', () => {
@@ -101,10 +102,6 @@ describe('GeminiService', () => {
         expect(WebSocketManager.removeMessageHandler).toHaveBeenCalledWith(mockHandler);
     });
 
-
-
-
-
     test('should handle multiple connects without duplicate handlers', () => {
         geminiService.connect();
         geminiService.connect();
@@ -112,4 +109,69 @@ describe('GeminiService', () => {
         expect(WebSocketManager.connect).toHaveBeenCalledTimes(1);
         expect(WebSocketManager.addMessageHandler).toHaveBeenCalledTimes(1);
     });
+
+    test('should send a REST message and receive a response', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: true,
+                json: () => Promise.resolve({ response: 'Hello from Gemini!' }),
+            })
+        );
+
+        const sessionId = 'test-session-id';
+        const inputText = 'Hello, Gemini!';
+        const response = await geminiService.sendRestMessage(sessionId, inputText);
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            'https://mock-api-base-url/api/gemini',
+            expect.objectContaining({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, inputText }),
+            })
+        );
+        expect(response).toBe('Hello from Gemini!');
+    });
+
+    test('should handle REST message failure gracefully', async () => {
+        global.fetch = jest.fn(() =>
+            Promise.resolve({
+                ok: false,
+                json: () => Promise.resolve({}),
+            })
+        );
+
+        const sessionId = 'test-session-id';
+        const inputText = 'Hello, Gemini!';
+        const response = await geminiService.sendRestMessage(sessionId, inputText);
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            'https://mock-api-base-url/api/gemini',
+            expect.objectContaining({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, inputText }),
+            })
+        );
+        expect(response).toBeNull();
+    });
+
+    test('should handle network errors during REST message', async () => {
+        global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+
+        const sessionId = 'test-session-id';
+        const inputText = 'Hello, Gemini!';
+        const response = await geminiService.sendRestMessage(sessionId, inputText);
+
+        expect(global.fetch).toHaveBeenCalledWith(
+            'https://mock-api-base-url/api/gemini',
+            expect.objectContaining({
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, inputText }),
+            })
+        );
+        expect(response).toBeNull();
+    });
+
 });
