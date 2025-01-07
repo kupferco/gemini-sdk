@@ -21,26 +21,27 @@
 
     <!-- Log area to display the conversation -->
     <div id="conversation-log"
-        style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto;">
+        style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 600px; overflow-y: auto;">
         <p>Conversation will appear here...</p>
     </div>
 
     <script type="module">
         import Config from '../src/Config.js';
         import STTService from '../src/services/STTService';
+        import GeminiService from '../src/services/GeminiService.js';
         import TTSService from '../src/services/TTSWebSocketService';
+        import ConversationService from '../src/services/ConversationService.js';
         import SessionManager from '../src/session/SessionManager.js';
-
+    
         Config.setApiBaseUrl('https://ee97-2a00-23c8-16b2-8301-da3-adec-4c3a-99c6.ngrok-free.app');
-
-        // Initialize session
-        SessionManager.initializeSession();
-
+    
+        // Initialize single instances of services
         const sttService = new STTService();
         const ttsService = new TTSService();
-
+        const geminiService = new GeminiService();
+    
         let isMuted = false;
-
+    
         const updateButtonStates = (micActive) => {
             document.getElementById('start').disabled = micActive;
             document.getElementById('stop').disabled = !micActive;
@@ -50,8 +51,45 @@
             document.getElementById('clear-history').disabled = micActive;
             document.getElementById('new-session').disabled = micActive;
         };
-
-        document.addEventListener('DOMContentLoaded', () => {
+    
+        updateButtonStates();
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const conversationLog = document.getElementById('conversation-log');
+    
+            const appendToLog = (message, role) => {
+                const p = document.createElement('p');
+                p.textContent = message.trim();
+                p.style.textAlign = role === 'user' ? 'left' : 'right';
+                conversationLog.appendChild(p);
+                conversationLog.scrollTop = conversationLog.scrollHeight;
+            };
+    
+            const loadConversationHistory = async () => {
+                const history = await ConversationService.fetchHistory();
+                conversationLog.innerHTML = ''; // Clear existing log
+                history.forEach(({ role, text }) => appendToLog(text, role));
+            };
+    
+            const clearHistory = async () => {
+                await ConversationService.clearHistory();
+                conversationLog.innerHTML = ''; // Clear log visually
+            };
+    
+            // Initialize session and load history
+            SessionManager.initializeSession();
+            await loadConversationHistory();
+    
+            // Set up Gemini response handler
+            geminiService.setResponseHandler((agentResponse) => {
+                appendToLog(agentResponse, 'assistant');
+            });
+    
+            // Connect Gemini and TTS WebSocket
+            geminiService.connect();
+            ttsService.connect();
+    
+            // Button controls
             const startButton = document.getElementById('start');
             const stopButton = document.getElementById('stop');
             const muteButton = document.getElementById('mute');
@@ -59,73 +97,81 @@
             const interruptButton = document.getElementById('interrupt');
             const clearHistoryButton = document.getElementById('clear-history');
             const newSessionButton = document.getElementById('new-session');
-            const conversationLog = document.getElementById('conversation-log');
-
-            const appendToLog = (message, role = 'system') => {
-                const p = document.createElement('p');
-                p.textContent = `${role}: ${message}`;
-                conversationLog.appendChild(p);
-                conversationLog.scrollTop = conversationLog.scrollHeight;
-            };
-
-            const handleSTTCallback = (transcript) => {
-                appendToLog(transcript, 'User');
-            };
-
+    
             startButton.addEventListener('click', async () => {
-                try {                    
-                    await sttService.startListening(handleSTTCallback);
-                    updateButtonStates(true); // Mic is now active
-                    appendToLog('Microphone started', 'System');
-                    // Connect TTSWebSocketService to start listening for events
-                    await ttsService.connect();
+                try {
+                    await sttService.startListening((transcript) => appendToLog(transcript, 'user'));
+                    updateButtonStates(true); // Mic is active
                 } catch (error) {
                     console.error('Error starting microphone:', error);
-                    appendToLog('Error starting microphone.', 'Error');
                 }
             });
-
+    
             stopButton.addEventListener('click', () => {
                 sttService.stopListening();
-                updateButtonStates(false); // Mic is now inactive
-                appendToLog('Microphone stopped', 'System');
+                updateButtonStates(false); // Mic is inactive
             });
-
+    
             muteButton.addEventListener('click', () => {
                 sttService.stopSendingAudio();
                 isMuted = true;
                 updateButtonStates(true); // Update for mute state
-                appendToLog('Audio muted', 'System');
             });
-
+    
             unmuteButton.addEventListener('click', () => {
                 sttService.startSendingAudio();
                 isMuted = false;
                 updateButtonStates(true); // Update for unmute state
-                appendToLog('Audio unmuted', 'System');
             });
-
+    
             interruptButton.addEventListener('click', () => {
                 ttsService.interruptAudio();
-                appendToLog('TTS interrupted', 'System');
             });
-
-            clearHistoryButton.addEventListener('click', () => {
-                SessionManager.initializeSession();
-                conversationLog.innerHTML = ''; // Clear log visually
-                appendToLog('Conversation history cleared', 'System');
-            });
-
+    
+            clearHistoryButton.addEventListener('click', clearHistory);
+    
             newSessionButton.addEventListener('click', () => {
                 SessionManager.renewSession();
                 conversationLog.innerHTML = ''; // Clear log visually
-                appendToLog('New session started', 'System');
             });
-
-            // Initialize button states
-            updateButtonStates(false); // Mic is initially inactive
         });
     </script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #conversation-log {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        #conversation-log p {
+            margin: 5px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        #conversation-log p:nth-child(even) {
+            background-color: #f1f1f1;
+            /* User messages */
+        }
+
+        #conversation-log p:nth-child(odd) {
+            background-color: #e6f7ff;
+            /* Agent messages */
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px;
+        }
+    </style>
+
 
 </body>
 

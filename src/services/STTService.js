@@ -24,6 +24,7 @@ class STTService {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             this.mediaStream = stream;
             this.isRecording = true;
+            console.log(this.isRecording)
 
             this.sessionId = SessionManager.getSessionId();
             console.log('STTService: Using session ID:', this.sessionId);
