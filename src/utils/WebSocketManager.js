@@ -32,7 +32,7 @@ class WebSocketManager {
 
       this.connection.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          console.log('WebSocketManager: Message received:', data);
+        //   console.log('WebSocketManager: Message received:', data);
 
           // Notify all registered handlers
           this.messageHandlers.forEach((handler) => handler(data));
