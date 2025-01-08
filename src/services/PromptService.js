@@ -1,5 +1,10 @@
 import Config from '../Config';
 
+const headers = {
+  'Content-Type': 'application/json',
+  ...(process.env.NODE_ENV !== 'production' && { 'ngrok-skip-browser-warning': 'true' }),
+};
+
 class PromptService {
   async getPrompt(sessionId) {
     const endpoint = Config.getEndpoint('prompt');
@@ -9,7 +14,7 @@ class PromptService {
     }
 
     try {
-      const response = await fetch(`${endpoint}?sessionId=${sessionId}`);
+      const response = await fetch(`${endpoint}?sessionId=${sessionId}`, { headers });
       if (!response.ok) {
         throw new Error(`Failed to fetch prompt: ${response.statusText}`);
       }
@@ -31,7 +36,7 @@ class PromptService {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ sessionId, newPrompt }),
       });
 

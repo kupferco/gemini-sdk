@@ -30,7 +30,13 @@ describe('PromptService', () => {
 
         // Assertions
         expect(fetch).toHaveBeenCalledWith(
-            'https://mock-test-api-endpoint.com/api/gemini/system-prompt?sessionId=test-session'
+            'https://mock-test-api-endpoint.com/api/gemini/system-prompt?sessionId=test-session',
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true',
+                },
+            }
         );
 
         expect(prompt).toBe('Test Prompt');
@@ -75,7 +81,10 @@ describe('PromptService', () => {
             'https://mock-test-api-endpoint.com/api/gemini/system-prompt',
             {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true',
+                },
                 body: JSON.stringify({ sessionId: mockSessionId, newPrompt }),
             }
         );
