@@ -55,6 +55,18 @@ A simple example to interact with the `GeminiService` using a text-based interfa
 
 ---
 
+### [`sample-prompt.html`](sample-prompt.html)
+A simple example to interact with the `PromptService` using a text area for prompts.
+
+- **Usage**: Open the file in a browser to manage session prompts.
+- **Features**:
+  - **Save Prompt**: Saves the entered prompt for the current session.
+  - **Load Prompt**: Automatically fetches and displays the session's system prompt when the page loads.
+  - **Start New Session**: Clears the input and creates a new session.
+- **Dependencies**: Ensure you have the SDK set up in the correct path.
+
+---
+
 ## Running Samples
 
 1. Start the Vite development server in the project root:
@@ -69,6 +81,7 @@ A simple example to interact with the `GeminiService` using a text-based interfa
      - [`sample-tts.html`](sample-tts.html)
      - [`sample-voice.html`](sample-voice.html)
      - [`sample-text.html`](sample-text.html)
+     - [`sample-prompt.html`](sample-prompt.html)
 
 ---
 
@@ -77,4 +90,3 @@ A simple example to interact with the `GeminiService` using a text-based interfa
 1. Ensure your browser supports WebRTC and the required APIs (e.g., MediaRecorder, Blob).
 2. The `mode` flag for `start_stt` is set in the `Start Listening` button logic to demonstrate the `stt_only` functionality.
 3. For production use, adjust configurations and endpoint URLs in the SDK.
-
