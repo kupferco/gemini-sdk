@@ -4,6 +4,7 @@
   "description": "SDK for integrating Gemini chatbot services",
   "main": "index.js",
   "scripts": {
+    "prepublishOnly": "npm test",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "dev": "vite",
@@ -11,7 +12,7 @@
     "start": "vite preview"
   },
   "keywords": [],
-  "author": "",
+  "author": "Dan Kupfer",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.9",

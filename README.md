@@ -2,83 +2,72 @@
 
 ## Introduction
 
-The Proxy Assistant SDK is a toolkit for integrating Gemini chatbot services. It offers a flexible way for developers to connect their applications to a proxy server, either locally or in production, and allows for customization based on different environments.
+The Proxy Assistant SDK simplifies the integration of Gemini chatbot services with your application. Designed for developers, it offers dynamic proxy server configuration, multi-environment support, and flexible APIs for seamless interaction with Gemini services.
 
 ---
 
 ## Features
 
-- Dynamic API base URL configuration.
-- Support for multiple environments (development, production, ngrok).
-- Easy-to-use endpoints for chatbot services (STT, TTS, Gemini).
-- Developer-friendly overrides for proxy servers.
+- **Dynamic API Configuration**: Automatically adapts to different environments.
+- **Flexible Deployment**: Supports local, ngrok, and production environments.
+- **Comprehensive Chatbot APIs**: Streamlined access to STT, TTS, and Gemini endpoints.
+- **Custom Proxy Overrides**: Easily switch to custom proxy servers for testing.
 
 ---
 
 ## Installation
 
-1. Clone the repository:
+You can install the SDK from a `.tgz` file for local use:
+
+1. Obtain the `.tgz` file (e.g., `proxy-assistant-sdk-1.0.0.tgz`).
+2. Install it in your project:
+
    ```bash
-   git clone <repository-url>
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd proxy-assistant-sdk
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
+   npm install ./path-to-your-package.tgz
    ```
 
 ---
 
 ## Usage
 
-### Running the SDK Locally
+### Importing the SDK
 
-To start the SDK locally in development mode:
+After installation, import and use the SDK in your project:
+
+```javascript
+import { Config, TTSService, STTService } from 'proxy-assistant-sdk';
+
+// Example: Set a custom API base URL
+Config.setApiBaseUrl('https://custom-proxy-server.com');
+
+// Example: Start the STT service
+const sttService = new STTService();
+sttService.startListening((transcript) => {
+  console.log('Transcription:', transcript);
+});
+```
+
+---
+
+### Running Locally
+
+To use the SDK in a local environment, set up your proxy server and configure the environment variables:
 
 ```bash
 NODE_ENV=development npm run dev
 ```
 
-To use a local ngrok proxy:
+Alternatively, use `ngrok` for tunneling:
 
 ```bash
 NODE_ENV=ngrok npm run dev
 ```
 
-To use a live proxy server in production mode locally:
+For production environments:
 
 ```bash
-NODE_ENV=production npm run dev
+NODE_ENV=production npm run start
 ```
-
-For Windows:
-
-```cmd
-set NODE_ENV=development && npm run dev
-```
-
-### Building for Production
-
-To build the SDK for production:
-
-```bash
-npm run build
-```
-
-This creates an optimized `dist` folder with the compiled files.
-
-### Serving the Production Build
-
-To serve the production build locally:
-
-```bash
-npm run start
-```
-
-This starts a local server using `vite preview`.
 
 ---
 
@@ -86,56 +75,37 @@ This starts a local server using `vite preview`.
 
 ### Environment Variables
 
-The SDK uses a dynamic configuration system based on the `NODE_ENV` variable to determine which proxy server to use.
+The SDK uses environment variables to determine the API base URL based on the `NODE_ENV` setting.
 
-#### Default Environment Configurations
+#### Default Configurations
 
-- **Development**
+| Environment  | Base URL                                      |
+|--------------|-----------------------------------------------|
+| Development  | `http://localhost:8080`                      |
+| Ngrok        | `https://your-ngrok-url.ngrok-free.app`       |
+| Production   | `https://proxy-server-14953211771.run.app`   |
 
-  - `API_BASE_URL`: `http://localhost:8080`
+### Custom Configuration
 
-- **Ngrok**
-
-  - `API_BASE_URL`: `https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app`
-
-- **Production**
-
-  - `API_BASE_URL`: `https://proxy-server-14953211771.europe-west2.run.app`
-
-#### Setting `NODE_ENV`
-
-- **UNIX/Linux/macOS:**
-  ```bash
-  NODE_ENV=development npm run dev
-  ```
-- **Windows (Command Prompt):**
-  ```cmd
-  set NODE_ENV=production && npm run dev
-  ```
-
-### Overriding the Proxy Server
-
-Developers can dynamically override the proxy server URL in their application:
+To override the default base URL:
 
 ```javascript
-import Config from './src/Config.js';
-
-Config.setApiBaseUrl('https://custom-proxy-server.com');
+Config.setApiBaseUrl('https://custom-proxy.com');
 ```
 
-This allows flexibility to test custom proxies without modifying the core configuration.
+This allows you to connect to a different proxy server dynamically.
 
 ---
 
 ## Scripts
 
-### Available Commands
-
-- **`npm run dev`**: Starts the development server using Vite.
-- **`npm run build`**: Builds the project for production.
-- **`npm run start`**: Serves the production build using `vite preview`.
-- **`npm run test`**: Runs tests with Jest.
-- **`npm run test:watch`**: Runs tests in watch mode.
+| Command           | Description                            |
+|-------------------|----------------------------------------|
+| `npm run dev`     | Start development server with Vite.   |
+| `npm run build`   | Build for production.                 |
+| `npm run start`   | Serve production build.               |
+| `npm run test`    | Run tests with Jest.                  |
+| `npm run test:watch` | Run tests in watch mode.            |
 
 ---
 
@@ -143,13 +113,13 @@ This allows flexibility to test custom proxies without modifying the core config
 
 ### Running Tests
 
-Run the test suite with coverage:
+Ensure the SDK functions as expected by running:
 
 ```bash
 npm run test
 ```
 
-For continuous testing:
+For real-time feedback during development:
 
 ```bash
 npm run test:watch
@@ -159,20 +129,31 @@ npm run test:watch
 
 ## FAQ
 
-### How do I switch between local ngrok and production proxies?
+### How do I install the SDK from a `.tgz` file?
 
-You can switch by setting the `NODE_ENV` environment variable:
+Download the `.tgz` package and run:
 
-- For local ngrok: `NODE_ENV=ngrok`.
-- For production: `NODE_ENV=production`.
-
-Alternatively, use:
-
-```javascript
-Config.setApiBaseUrl('https://your-ngrok-url.ngrok-free.app');
+```bash
+npm install ./path-to-your-package.tgz
 ```
 
-### Can I use the SDK without `NODE_ENV`?
+### Can I set a custom proxy server URL?
 
-Yes. The SDK defaults to `development` if `NODE_ENV` is not set. You can also manually set the base URL using `Config.setApiBaseUrl()`.
+Yes, you can dynamically set the proxy server:
+
+```javascript
+Config.setApiBaseUrl('https://your-proxy-url.com');
+```
+
+---
+
+## Contributing
+
+We welcome contributions! Please open an issue or pull request to share your improvements.
+
+---
+
+## License
+
+This project is licensed under the ISC License. See the `LICENSE` file for details.
 
