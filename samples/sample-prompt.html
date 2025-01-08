@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Interaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #controls {
+            margin-bottom: 10px;
+        }
+
+        #input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        textarea {
+            /* flex: 1; */
+            padding: 10px;
+            font-size: 12px;
+            height: 150px;
+            resize: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Prompt Interaction</h1>
+
+    <!-- Controls Section -->
+    <div id="controls">
+        <button id="new-session">Start New Session</button>
+    </div>
+
+    <!-- Input Section -->
+    <div id="input-section">
+        <textarea id="prompt-input" placeholder="Enter a prompt here..."></textarea>
+        <button id="save-prompt">Save Prompt</button>
+    </div>
+
+    <script type="module">
+        import Config from '../src/Config.js';
+        import SessionManager from '../src/session/SessionManager.js';
+        import PromptService from '../src/services/PromptService.js';
+
+        Config.setApiBaseUrl(Config.getApiBaseUrl());
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const promptInput = document.getElementById('prompt-input');
+            const savePromptButton = document.getElementById('save-prompt');
+            const newSessionButton = document.getElementById('new-session');
+
+            const loadPrompt = async () => {
+                try {
+                    const sessionId = SessionManager.getSessionId();
+                    console.log(sessionId)
+                    const systemPrompt = await PromptService.getPrompt(sessionId);
+                    promptInput.value = systemPrompt || '';
+                } catch (error) {
+                    console.error('Error loading prompt:', error);
+                    console.log('Failed to load prompt. Please try again.');
+                }
+            };
+
+            const savePrompt = async () => {
+                const prompt = promptInput.value.trim();
+                if (!prompt) {
+                    console.log('Please enter a prompt.');
+                    return;
+                }
+
+                try {
+                    const sessionId = SessionManager.getSessionId();
+                    await PromptService.setPrompt(sessionId, prompt);
+                    console.log('Prompt saved successfully!');
+                } catch (error) {
+                    console.error('Error saving prompt:', error);
+                    console.log('Failed to save prompt. Please try again.');
+                }
+            };
+
+            const startNewSession = () => {
+                SessionManager.renewSession();
+                promptInput.value = '';
+                console.log('New session started.');
+            };
+
+            // Load existing prompt on page load
+            await loadPrompt();
+
+            // Button listeners
+            savePromptButton.addEventListener('click', savePrompt);
+            newSessionButton.addEventListener('click', startNewSession);
+        });
+    </script>
+</body>
+
+</html>

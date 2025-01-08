@@ -2,7 +2,7 @@ import Config from '../Config';
 
 class PromptService {
   async getPrompt(sessionId) {
-    const endpoint = Config.getEndpoint('system-prompt');
+    const endpoint = Config.getEndpoint('prompt');
 
     if (!sessionId) {
       throw new Error('Session ID is required to fetch the prompt.');
@@ -47,4 +47,4 @@ class PromptService {
   }
 }
 
-export default PromptService;
+export default new PromptService(); // Singleton instance
