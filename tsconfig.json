@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+      "declaration": true,               // Generate .d.ts files
+      "emitDeclarationOnly": true,       // Emit only declarations, no .js files
+      "outDir": "lib",                   // Output directory for .d.ts files
+      "strict": true,                    // Enable strict type checking
+      "module": "ESNext",                // Target ESNext modules
+      "target": "ESNext",                // Target ESNext output
+      "moduleResolution": "Node",        // Resolve modules like Node.js
+      "esModuleInterop": true,           // Ensure compatibility with CommonJS
+      "skipLibCheck": true               // Skip type checking of .d.ts files in node_modules
+    },
+    "include": ["src/**/*"],             // Include all TypeScript files in src
+    "exclude": ["node_modules", "lib"]   // Exclude unnecessary files
+  }
+  

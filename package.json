@@ -4,10 +4,12 @@
   "type": "module",
   "description": "SDK for integrating Gemini chatbot services",
   "main": "lib/proxy-assistant-sdk.esm.js",
+  "types": "lib/index.d.ts",
   "files": [
     "lib/",
     "template/",
-    "samples/"
+    "samples/",
+    "README.md"
   ],
   "scripts": {
     "prepublishOnly": "npm test",

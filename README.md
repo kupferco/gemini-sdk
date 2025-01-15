@@ -147,6 +147,29 @@ Config.setApiBaseUrl('https://your-proxy-url.com');
 
 ---
 
+## Recreating the `.tgz` File
+
+If you need to recreate the `.tgz` file for the SDK:
+
+1. Navigate to the root of the SDK project (where `package.json` is located):
+   ```bash
+   cd /path/to/proxy-assistant-sdk
+   ```
+
+2. Run the following command:
+   ```bash
+   npm pack
+   ```
+
+3. The command generates a `.tgz` file (e.g., `proxy-assistant-sdk-1.0.0.tgz`) in the same directory.
+
+4. Use this file for local installations:
+   ```bash
+   npm install ./path-to-your-package.tgz
+   ```
+
+---
+
 ## Contributing
 
 We welcome contributions! Please open an issue or pull request to share your improvements.

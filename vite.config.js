@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig(({ command }) => {
   if (command === 'serve') {
@@ -13,6 +14,11 @@ export default defineConfig(({ command }) => {
   } else {
     // Build configuration for packaging
     return {
+      plugins: [
+        dts({
+          insertTypesEntry: true, // Ensures `types` entry is added to package.json exports
+        }),
+      ],
       build: {
         outDir: 'lib', // Output directory for the built SDK
         lib: {
