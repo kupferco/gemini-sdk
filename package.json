@@ -1,10 +1,17 @@
 {
   "name": "proxy-assistant-sdk",
   "version": "1.0.0",
+  "type": "module",
   "description": "SDK for integrating Gemini chatbot services",
-  "main": "index.js",
+  "main": "lib/proxy-assistant-sdk.esm.js",
+  "files": [
+    "lib/",
+    "template/",
+    "samples/"
+  ],
   "scripts": {
     "prepublishOnly": "npm test",
+    "prepack": "npm run build",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "dev": "vite",
@@ -26,5 +33,9 @@
     "jest": "^29.7.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.6"
+  },
+  "exports": {
+    "require": "./lib/proxy-assistant-sdk.umd.js",
+    "import": "./lib/proxy-assistant-sdk.esm.js"
   }
 }

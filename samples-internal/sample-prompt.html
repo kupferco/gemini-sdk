@@ -55,7 +55,9 @@
     </div>
 
     <script type="module">
-        import { Config, SessionManager, PromptService } from 'proxy-assistant-sdk';
+        import Config from '../src/Config.js';
+        import SessionManager from '../src/session/SessionManager.js';
+        import PromptService from '../src/services/PromptService.js';
 
         Config.setApiBaseUrl(Config.getApiBaseUrl());
 

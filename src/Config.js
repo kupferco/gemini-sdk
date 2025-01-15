@@ -4,7 +4,7 @@ const ENV = {
       API_BASE_URL: 'http://localhost:8080',
   },
   ngrok: {
-      API_BASE_URL: 'https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app',
+      API_BASE_URL: 'https://2e26-2a00-23c8-16b2-8301-5494-7384-8ee5-ec42.ngrok-free.app',
   },
   production: {
       API_BASE_URL: 'https://proxy-server-14953211771.europe-west2.run.app',
@@ -16,7 +16,7 @@ const currentEnv = process.env.NODE_ENV || 'development';
 
 class Config {
   constructor() {
-    console.log(process.env.NODE_ENV)
+    console.log(`NODE_ENV = ${process.env.NODE_ENV}`)
       this.apiBaseUrl = ENV[currentEnv].API_BASE_URL || null;
       this.endpoints = {
           prompt: '/api/gemini/system-prompt',

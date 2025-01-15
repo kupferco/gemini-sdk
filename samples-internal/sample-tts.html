@@ -41,8 +41,11 @@
     </div>
 
     <script type="module">
-        import { Config, SessionManager, TTSRestService } from 'proxy-assistant-sdk';
-
+        import Config from '../src/Config.js';
+        import SessionManager from '../src/session/SessionManager.js';
+        import TTSRestService from '../src/services/TTSRestService.js';
+        // import TTSWebSocketService from '../src/services/TTSWebSocketService.js';
+        
         Config.setApiBaseUrl(Config.getApiBaseUrl());
 
         // Initialize session

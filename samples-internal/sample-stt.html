@@ -15,7 +15,14 @@
   <div id="output"></div>
 
   <script type="module">
-    import { Config, SessionManager, STTService } from 'proxy-assistant-sdk';
+    import Config from '../src/Config.js';
+    import SessionManager from '../src/session/SessionManager.js';
+    import STTService from '../src/services/STTService.js';
+
+    // Set API base URL
+    // Config.setApiBaseUrl('https://localhost:8080');
+    // Config.setApiBaseUrl('https://adcb-2a01-4b00-be13-4400-8c76-4d16-4b6b-14c9.ngrok-free.app');
+    // Config.setApiBaseUrl('https://proxy-server-14953211771.europe-west2.run.app');
 
     Config.setApiBaseUrl(Config.getApiBaseUrl());
 

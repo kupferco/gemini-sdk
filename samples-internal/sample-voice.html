@@ -91,8 +91,13 @@
     </div>
 
     <script type="module">
-        import { Config, STTService, GeminiService, TTSService, ConversationService, SessionManager, TTSRestService } from 'proxy-assistant-sdk';
-
+        import Config from '../src/Config.js';
+        import STTService from '../src/services/STTService';
+        import GeminiService from '../src/services/GeminiService.js';
+        import TTSService from '../src/services/TTSWebSocketService';
+        import ConversationService from '../src/services/ConversationService.js';
+        import SessionManager from '../src/session/SessionManager.js';
+    
         Config.setApiBaseUrl(Config.getApiBaseUrl());
     
         // Initialize single instances of services
