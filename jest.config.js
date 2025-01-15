@@ -1,8 +1,11 @@
-module.exports = {
+export default {
     transform: {
-        '^.+\\.jsx?$': 'babel-jest', // Use babel-jest to transform JS files
+        '^.+\\.[tj]sx?$': 'babel-jest', // Transpile TypeScript and JavaScript
     },
-    testEnvironment: 'node', // Set the test environment
-    collectCoverage: true, // Enable coverage collection
-    setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+    testEnvironment: 'node',
+    extensionsToTreatAsEsm: ['.ts', '.tsx'], // Treat these as ES modules
+    setupFilesAfterEnv: ['<rootDir>/jest.setup.js'], // Jest setup file
+    moduleNameMapper: {
+        '^(\\.{1,2}/.*)\\.js$': '$1', // Map imports without .js extensions
+    },
 };

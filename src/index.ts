@@ -1,43 +1,11 @@
-export class Config {
-    static setApiBaseUrl(baseUrl: string): void {
-        console.log(`API base URL set to: ${baseUrl}`);
-    }
+import Config from './Config.js';
+import SessionManager from './session/SessionManager.js';
+import GeminiService from './services/GeminiService.js';
+import ConversationService from './services/ConversationService.js';
 
-    static getApiBaseUrl(): string {
-        return 'https://default-api-base-url.com'; // Replace with your logic
-    }
-}
+console.log(Config, SessionManager, GeminiService, ConversationService);
 
-export class SessionManager {
-    static initializeSession(): void {
-        console.log('Session initialized');
-    }
+export { Config, SessionManager, GeminiService, ConversationService };
 
-    static getSessionId(): string {
-        return 'session-id-placeholder'; // Replace with your logic
-    }
+export const test = 'test';
 
-    static renewSession(): void {
-        console.log('Session renewed');
-    }
-}
-
-export class GeminiService {
-    async sendRestMessage(sessionId: string, message: string): Promise<string> {
-        console.log(`Sending message: "${message}" to session: ${sessionId}`);
-        return 'Mock response from GeminiService'; // Replace with actual logic
-    }
-}
-
-export class ConversationService {
-    static async fetchHistory(): Promise<{ role: string; text: string }[]> {
-        return [
-            { role: 'user', text: 'Hello!' },
-            { role: 'assistant', text: 'Hi there!' },
-        ]; // Replace with actual logic
-    }
-
-    static async clearHistory(): Promise<void> {
-        console.log('Conversation history cleared');
-    }
-}

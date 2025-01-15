@@ -14,8 +14,9 @@
   "scripts": {
     "prepublishOnly": "npm test",
     "prepack": "npm run build",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch",
+    "test": "npx jest tests/",
+    "test:watch": "npx jest tests/ --watch",
+    "coverage": "npx jest tests/ --coverage",
     "dev": "vite",
     "build": "vite build",
     "start": "vite preview"

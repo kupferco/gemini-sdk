@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+      "declaration": true,
+      "emitDeclarationOnly": true,
+      "declarationDir": "./lib",
+      "module": "ESNext",
+      "moduleResolution": "Node",
+      "target": "ESNext",
+      "strict": true
+    },
+    "include": ["src/index.ts"]
+  }
+  
