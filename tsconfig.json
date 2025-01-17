@@ -1,9 +1,9 @@
 {
     "compilerOptions": {
-        "allowJs": true, // Allow JS files in the project
-        "declaration": true, // Generate .d.ts files
-        "emitDeclarationOnly": true, // Only generate .d.ts files
+        "allowJs": true,
+        "declaration": true,
         "declarationDir": "./lib", // Output directory for .d.ts files
+        "outDir": "./lib",         // Output directory for .js files
         "module": "ESNext",
         "moduleResolution": "Node",
         "target": "ESNext",
