@@ -17,7 +17,7 @@ export default defineConfig(({ command }) => {
       plugins: [
         dts({
           insertTypesEntry: true, // Ensures `types` entry is added to package.json exports
-          outputDir: 'lib', // Match the output directory for your build
+          outputDir: 'build', // Match the output directory for your build
         }),
       ],
       build: {
