@@ -18,7 +18,9 @@
     "test:watch": "npx jest tests/ --watch",
     "coverage": "npx jest tests/ --coverage",
     "dev": "vite",
-    "build": "vite build",
+    "build:vite": "vite build",
+    "build:ts": "tsc",
+    "build": "npm run build:ts && npm run build:vite",
     "start": "vite preview"
   },
   "keywords": [],

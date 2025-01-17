@@ -21,7 +21,7 @@ export default defineConfig(({ command }) => {
         }),
       ],
       build: {
-        outDir: 'lib', // Output directory for the built SDK
+        outDir: 'build', // Output directory for the built SDK
         lib: {
           entry: './src/index.ts', // Main entry point of the SDK
           name: 'ProxyAssistantSDK', // Global variable name (for UMD build)

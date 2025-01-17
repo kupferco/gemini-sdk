@@ -1,15 +1,20 @@
 {
-  "compilerOptions": {
-    "allowJs": true,                 // Allow JS files in the project
-    "declaration": true,             // Generate .d.ts files
-    "emitDeclarationOnly": true,     // Only generate .d.ts files
-    "declarationDir": "./lib",       // Output directory for .d.ts files
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "target": "ESNext",
-    "strict": true,
-    "esModuleInterop": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "lib"]
+    "compilerOptions": {
+        "allowJs": true, // Allow JS files in the project
+        "declaration": true, // Generate .d.ts files
+        "emitDeclarationOnly": true, // Only generate .d.ts files
+        "declarationDir": "./lib", // Output directory for .d.ts files
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "target": "ESNext",
+        "strict": true,
+        "esModuleInterop": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "lib"
+    ]
 }
