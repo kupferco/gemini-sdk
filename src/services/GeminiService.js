@@ -66,7 +66,7 @@ class GeminiService {
                 }),
             });
 
-            // console.log(sessionId, inputText)
+            console.log("Session and inputText", sessionId, inputText)
 
             if (!response.ok) {
                 console.error('Failed to send REST message to Gemini.');

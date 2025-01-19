@@ -15,42 +15,40 @@ const ENV = {
 const currentEnv = process.env.NODE_ENV || 'development';
 
 class Config {
-    constructor() {
-        // console.log(`NODE_ENV = ${process.env.NODE_ENV}`)
+  constructor() {
+    console.log('v.1.0.3');
+    console.log(`NODE_ENV = ${process.env.NODE_ENV}`)
+      this.apiBaseUrl = ENV[currentEnv].API_BASE_URL || null;
+      this.endpoints = {
+          prompt: '/api/gemini/system-prompt',
+          stt: '/api/stt',
+          tts: '/api/tts',
+          gemini: '/api/gemini',
+          geminiHistory: '/api/gemini/history',
+          voice: ' ',
+      };
+  }
 
-        console.log(55555555);
+  setApiBaseUrl(baseUrl) {
+      console.log(`Setting API base URL to: ${baseUrl}`);
+      this.apiBaseUrl = baseUrl;
+  }
 
-        this.apiBaseUrl = ENV[currentEnv].API_BASE_URL || null;
-        this.endpoints = {
-            prompt: '/api/gemini/system-prompt',
-            stt: '/api/stt',
-            tts: '/api/tts',
-            gemini: '/api/gemini',
-            geminiHistory: '/api/gemini/history',
-            voice: ' ',
-        };
-    }
+  getApiBaseUrl() {
+      if (!this.apiBaseUrl) {
+          throw new Error('API base URL is not set. Please configure it before using the SDK.');
+      }
+      return this.apiBaseUrl;
+  }
 
-    setApiBaseUrl(baseUrl) {
-        console.log(`Setting API base URL to: ${baseUrl}`);
-        this.apiBaseUrl = baseUrl;
-    }
-
-    getApiBaseUrl() {
-        if (!this.apiBaseUrl) {
-            throw new Error('API base URL is not set. Please configure it before using the SDK.');
-        }
-        return this.apiBaseUrl;
-    }
-
-    getEndpoint(serviceName) {
-        const baseUrl = this.getApiBaseUrl();
-        const path = this.endpoints[serviceName];
-        if (!path) {
-            throw new Error(`Endpoint for service "${serviceName}" is not defined.`);
-        }
-        return `${baseUrl}${path}`;
-    }
+  getEndpoint(serviceName) {
+      const baseUrl = this.getApiBaseUrl();
+      const path = this.endpoints[serviceName];
+      if (!path) {
+          throw new Error(`Endpoint for service "${serviceName}" is not defined.`);
+      }
+      return `${baseUrl}${path}`;
+  }
 }
 
 export default new Config();
