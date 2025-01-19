@@ -21,7 +21,6 @@ You can install the SDK from a `.tgz` file for local use:
 
 1. Obtain the `.tgz` file (e.g., `proxy-assistant-sdk-1.0.0.tgz`).
 2. Install it in your project:
-
    ```bash
    npm install ./path-to-your-package.tgz
    ```
@@ -79,11 +78,11 @@ The SDK uses environment variables to determine the API base URL based on the `N
 
 #### Default Configurations
 
-| Environment  | Base URL                                      |
-|--------------|-----------------------------------------------|
-| Development  | `http://localhost:8080`                      |
-| Ngrok        | `https://your-ngrok-url.ngrok-free.app`       |
-| Production   | `https://proxy-server-14953211771.run.app`   |
+| Environment | Base URL                                   |
+| ----------- | ------------------------------------------ |
+| Development | `http://localhost:8080`                    |
+| Ngrok       | `https://your-ngrok-url.ngrok-free.app`    |
+| Production  | `https://proxy-server-14953211771.run.app` |
 
 ### Custom Configuration
 
@@ -97,14 +96,62 @@ This allows you to connect to a different proxy server dynamically.
 
 ---
 
+## Updating the SDK During Development
+
+If you’re making changes to the SDK and need to test them in a project, follow these steps:
+
+1. **Rebuild the SDK**\
+   Navigate to the SDK project directory and rebuild it:
+
+   ```bash
+   cd /path/to/proxy-assistant-sdk
+   npm run build
+   ```
+
+2. **Pack the SDK**\
+   Create a `.tgz` file for distribution:
+
+   ```bash
+   npm pack
+   ```
+
+   This will generate a file named something like `proxy-assistant-sdk-1.0.0.tgz` in the SDK directory.
+
+3. **Uninstall the Current SDK**\
+   Navigate to your project where the SDK is used and uninstall the existing SDK:
+
+   ```bash
+   cd /path/to/your-project
+   npm uninstall proxy-assistant-sdk
+   ```
+
+4. **Install the Updated SDK**\
+   Install the newly packed SDK:
+
+   ```bash
+   npm install /path/to/proxy-assistant-sdk/proxy-assistant-sdk-1.0.0.tgz
+   ```
+
+5. **Restart the Development Server**\
+   To ensure the updated SDK is picked up, restart your development server with a cache reset:
+
+   ```bash
+   npm start --reset-cache
+   ```
+
+6. **Verify Changes**\
+   Test the SDK in your project to confirm the updates are working as intended.
+
+---
+
 ## Scripts
 
-| Command           | Description                            |
-|-------------------|----------------------------------------|
-| `npm run dev`     | Start development server with Vite.   |
-| `npm run build`   | Build for production.                 |
-| `npm run start`   | Serve production build.               |
-| `npm run test`    | Run tests with Jest.                  |
+| Command              | Description                         |
+| -------------------- | ----------------------------------- |
+| `npm run dev`        | Start development server with Vite. |
+| `npm run build`      | Build for production.               |
+| `npm run start`      | Serve production build.             |
+| `npm run test`       | Run tests with Jest.                |
 | `npm run test:watch` | Run tests in watch mode.            |
 
 ---
@@ -152,11 +199,13 @@ Config.setApiBaseUrl('https://your-proxy-url.com');
 If you need to recreate the `.tgz` file for the SDK:
 
 1. Navigate to the root of the SDK project (where `package.json` is located):
+
    ```bash
    cd /path/to/proxy-assistant-sdk
    ```
 
 2. Run the following command:
+
    ```bash
    npm pack
    ```
@@ -164,19 +213,7 @@ If you need to recreate the `.tgz` file for the SDK:
 3. The command generates a `.tgz` file (e.g., `proxy-assistant-sdk-1.0.0.tgz`) in the same directory.
 
 4. Use this file for local installations:
+
    ```bash
    npm install ./path-to-your-package.tgz
    ```
-
----
-
-## Contributing
-
-We welcome contributions! Please open an issue or pull request to share your improvements.
-
----
-
-## License
-
-This project is licensed under the ISC License. See the `LICENSE` file for details.
-
