@@ -16,7 +16,7 @@ const currentEnv = process.env.NODE_ENV || 'development';
 
 class Config {
   constructor() {
-    console.log('v.1.0.2');
+    console.log('v.1.0.3');
     console.log(`NODE_ENV = ${process.env.NODE_ENV}`)
       this.apiBaseUrl = ENV[currentEnv].API_BASE_URL || null;
       this.endpoints = {
