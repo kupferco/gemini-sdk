@@ -1,14 +1,14 @@
 // Define environment-specific configurations
 const ENV = {
-  development: {
-      API_BASE_URL: 'http://localhost:8080',
-  },
-  ngrok: {
-      API_BASE_URL: 'https://2e26-2a00-23c8-16b2-8301-5494-7384-8ee5-ec42.ngrok-free.app',
-  },
-  production: {
-      API_BASE_URL: 'https://proxy-server-14953211771.europe-west2.run.app',
-  },
+    development: {
+        API_BASE_URL: 'http://localhost:8080',
+    },
+    ngrok: {
+        API_BASE_URL: 'https://2e26-2a00-23c8-16b2-8301-5494-7384-8ee5-ec42.ngrok-free.app',
+    },
+    production: {
+        API_BASE_URL: 'https://proxy-server-14953211771.europe-west2.run.app',
+    },
 };
 
 // Detect current environment

@@ -17,11 +17,11 @@ export default defineConfig(({ command }) => {
       plugins: [
         dts({
           insertTypesEntry: true, // Ensures `types` entry is added to package.json exports
-          outputDir: 'lib', // Match the output directory for your build
+          outputDir: 'build', // Match the output directory for your build
         }),
       ],
       build: {
-        outDir: 'lib', // Output directory for the built SDK
+        outDir: 'build', // Output directory for the built SDK
         lib: {
           entry: './src/index.ts', // Main entry point of the SDK
           name: 'ProxyAssistantSDK', // Global variable name (for UMD build)
